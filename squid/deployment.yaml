@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: squid-deployment
+  namespace: default
+  labels:
+    name: squid
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: squid
+  template:
+    metadata:
+      labels:
+        app: squid
+    spec:
+      containers:
+        - name: squid
+          image: docker.io/cyrriv/squid:3.5.20
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/squid/squid.conf
+            - name: logs-data
+              mountPath: /var/log/squid
+              mountPath: /var/spool/squid
+          ports:
+            - containerPort: 3128
+              protocol: TCP
+      volumes:
+        - name: conf
+          hostPath:
+            path: /home/ubuntu/squid/centos7/conf/squid.conf
+            type: File      
+        - name: logs
+          persistentVolumeClaim:
+            claimName: local-path-pvc
+        - name: logs-data
+          persistentVolumeClaim:
+            claimName: local-path-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: squid-service
+  labels:
+    name: squid
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 3128
+      targetPort: 3128
+      protocol: TCP
+  selector:
+    app: squid

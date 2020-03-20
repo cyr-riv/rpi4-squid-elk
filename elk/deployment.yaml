@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elk-deployment
+  namespace: default
+  labels:
+    name: elk-oss
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elk-oss
+  template:
+    metadata:
+      labels:
+        app: elk-oss
+    spec:
+      containers:
+        - name: elasticsearch-oss
+          image: docker.io/cyrriv/elasticsearch-oss:7.5.1
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: elasticsearch-vol01
+              mountPath: /usr/share/elasticsearch/data
+          workingDir: /usr/share/elasticsearch/data
+          ports:
+            - containerPort: 9200
+              protocol: TCP
+            - containerPort: 9300
+              protocol: TCP
+        - name: logstash-oss
+          image: docker.io/cyrriv/logstash-oss:7.5.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 1025
+              protocol: TCP
+          lifecycle:
+            ### Configure the index mapping after starting logstash.
+            ### The index pattern is created in ElasticSeacrh but
+            ### may reuquire a pod restart at least once to be effective,
+            ### to ensure that ElacticSearch is up and running.
+            postStart:
+              exec:
+                command: ["sleep 5"]
+                command: ["sh", "-c", "curl -XPUT http://0.0.0.0:9200/squid-access \
+                -H 'Content-Type: application/json' \
+                -d '{\"mappings\": {\"properties\": {\"@timestamp\": {\"type\": \"date\"},\"host\": {\"type\": \"keyword\"},\"src_ip\": {\"type\": \"ip\"},\"reply_size_include_header\": {\"type\": \"integer\"},\"squid_request_status\": {\"type\": \"keyword\"},\"http_status_code\": {\"type\": \"integer\"},\"http_method\": {\"type\": \"keyword\"},\"request_url\": {\"type\": \"keyword\"},\"content_type\": {\"type\": \"keyword\"},\"squid\": {\"type\": \"keyword\"},\"server_ip\": {\"type\": \"ip\"},\"user\": {\"type\": \"keyword\"},\"response_time\": {\"type\": \"integer\"}}}}'"]
+        - name: kibana-oss
+          image: docker.io/cyrriv/kibana-oss:7.5.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5601
+              protocol: TCP 
+      volumes:
+        - name: elasticsearch-vol01
+          persistentVolumeClaim:
+            claimName: local-path-pvc    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elk-svc-squid
+  labels:
+    name: elk-oss
+spec:
+  selector:
+    app: elk-oss
+  ports:
+    - port: 1025
+      targetPort: 1025
+      protocol: TCP
+      name: squid
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elk-svc-kibana-oss
+  labels:
+    name: elk-oss
+spec:
+  selector:
+    app: elk-oss
+  ports:
+    - port: 5601
+      targetPort: 5601
+      protocol: TCP
+      name: kibana-oss
+  type: LoadBalancer
