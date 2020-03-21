@@ -90,6 +90,10 @@ Follow the steps:
     persistentvolumeclaim/local-path-pvc   Bound    pvc-71709da5-8fe5-4356-8ea7-7d1579d90a04   1Gi        RWO            local-path     35h
     ```
 
+#### Additional deployments
+
+* To ease the configuration the web proxy on all home devices, I deployed a Nginx web server with the *proxy.pac* file detailing how the web traffic is routed to the proxy or not. Files are located into the *squid/nginx-proxy* folder with the YAML file named *squid/deploy-nginx.yaml* for the K8s deployment and service.
+
 ## Issues encountered and problems solving
 
 * K3s fails to start with the fatal error:
