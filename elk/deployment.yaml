@@ -31,6 +31,11 @@ spec:
         - name: logstash-oss
           image: docker.io/cyrriv/logstash-oss:7.5.1
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: logstash-conf
+              mountPath: /usr/share/logstash/config/logstash.conf
+            - name: elasticsearch-map
+              mountPath: /usr/share/logstash/squid-access-logstash-template.json
           ports:
             - containerPort: 1025
               protocol: TCP
@@ -42,9 +47,9 @@ spec:
             postStart:
               exec:
                 command: ["sleep 5"]
-                command: ["sh", "-c", "curl -XPUT http://0.0.0.0:9200/squid-access \
+                command: ["sh", "-c", "curl -XPUT http://0.0.0.0:9200/_template/squid-access \
                 -H 'Content-Type: application/json' \
-                -d '{\"mappings\": {\"properties\": {\"@timestamp\": {\"type\": \"date\"},\"host\": {\"type\": \"keyword\"},\"src_ip\": {\"type\": \"ip\"},\"reply_size_include_header\": {\"type\": \"integer\"},\"squid_request_status\": {\"type\": \"keyword\"},\"http_status_code\": {\"type\": \"integer\"},\"http_method\": {\"type\": \"keyword\"},\"request_url\": {\"type\": \"keyword\"},\"content_type\": {\"type\": \"keyword\"},\"squid\": {\"type\": \"keyword\"},\"server_ip\": {\"type\": \"ip\"},\"user\": {\"type\": \"keyword\"},\"response_time\": {\"type\": \"integer\"}}}}'"]
+                -d '@/usr/share/logstash/squid-access-logstash-template.json'"]
         - name: kibana-oss
           image: docker.io/cyrriv/kibana-oss:7.5.1
           imagePullPolicy: IfNotPresent
@@ -54,7 +59,15 @@ spec:
       volumes:
         - name: elasticsearch-vol01
           persistentVolumeClaim:
-            claimName: local-path-pvc    
+            claimName: local-path-pvc
+        - name: logstash-conf
+          hostPath:
+            path: /home/ubuntu/elk/centos7/logstash/config/logstash.conf
+            type: File
+        - name: elasticsearch-map
+          hostPath:
+            path: /home/ubuntu/elk/elasticsearch/squid-access-logstash-template.json
+            type: File
 ---
 apiVersion: v1
 kind: Service

@@ -1,0 +1,65 @@
+{
+"logstash": {
+    "order" : 0,
+    "version" : 60002,
+    "index_patterns" : [
+        "logstash-*"
+    ],
+    "settings" : {
+        "index" : {
+            "number_of_shards" : "1",
+            "refresh_interval" : "5s"
+        }
+    },
+    "mappings" : {
+        "properties": {
+            "@timestamp": {
+                "type": "date"
+            },
+            "host": {
+                "type": "keyword"
+            },
+            "src_ip": {
+                "type": "ip"
+            },
+            "reply_size_include_header": {
+                "type": "integer"
+            },
+            "squid_request_status": {
+                "type": "keyword"
+            },
+            "http_status_code": {
+                "type": "integer"
+            },
+            "http_method": {
+                "type": "keyword"
+            },
+            "request_url": {
+                "type": "keyword"
+            },
+            "content_type": {
+                "type": "keyword"
+            },
+            "squid": {
+                "type": "keyword"
+            },
+            "server_ip": {
+                "type": "ip"
+            },
+            "user": {
+                "type": "keyword"
+            },
+            "response_time": {
+                "type": "integer"
+            },
+            "geoip" : {
+                "ip" : { "type" : "ip" },
+                "latitude" : { "type" : "half_float" },
+                "location" : { "type" : "geo_point" },
+                "longitude" : { "type" : "half_float" }
+            }
+        }
+    }
+}
+}
+  

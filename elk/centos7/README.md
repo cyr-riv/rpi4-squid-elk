@@ -40,7 +40,7 @@ Configure the index mapping before starting logstash
 ```bash
 curl -XPUT http://127.0.0.1:9200/squid-access \
     -H'Content-Type: application/json' \
-    -d "$(cat ~/elk/elasticsearch/squid_access_template.json)"
+    -d "$(cat ~/elk/elasticsearch/squid-access-elasticsearch-mapping.json)"
 ```
 
 Start Logstash OSS using:

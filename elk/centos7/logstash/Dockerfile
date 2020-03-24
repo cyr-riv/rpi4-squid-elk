@@ -27,8 +27,8 @@ RUN tar zxf /opt/logstash-oss-7.5.1.tar.gz --strip-components=1
 # Configuring Logstash
 RUN mkdir -p config data fix
 RUN chmod 0775 config data fix
-COPY config/logstash.conf config/logstash.yml config/log4j2.properties config/
-RUN chmod 0660 config/logstash.conf config/logstash.yml config/log4j2.properties
+COPY config/logstash.yml config/log4j2.properties config/
+RUN chmod 0660 config/logstash.yml config/log4j2.properties
 RUN chmod 0775 /usr/share/logstash && \
     chgrp 0 /usr/share/logstash
 # Replace OpenJDK's built-in CA certificate keystore with the one from the OS

@@ -1,5 +1,6 @@
-{ 
-"mappings": {
+{
+"logstash": {
+    "mappings": {
         "properties": {
             "@timestamp": {
                 "type": "date"
@@ -39,7 +40,14 @@
             },
             "response_time": {
                 "type": "integer"
+            },
+            "geoip" : {
+                "ip" : { "type" : "ip" },
+                "latitude" : { "type" : "half_float" },
+                "location" : { "type" : "geo_point" },
+                "longitude" : { "type" : "half_float" }
             }
         }
     }
+}
 }
