@@ -100,3 +100,19 @@ spec:
       protocol: TCP
       name: kibana-oss
   type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elk-svc-elasticsearch-oss
+  labels:
+    name: elk-oss
+spec:
+  selector:
+    app: elk-oss
+  ports:
+    - port: 9200
+      targetPort: 9200
+      protocol: TCP
+      name: elasticsearch-oss
+  type: LoadBalancer
