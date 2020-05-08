@@ -5,5 +5,5 @@ function FindProxyForURL(url, host) {
     }
     
     // All other requests go through Squid.
-    return "PROXY 192.168.0.35:32267";
+    return "PROXY 192.168.0.35:31684";
  }

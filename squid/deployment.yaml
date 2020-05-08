@@ -22,6 +22,10 @@ spec:
           volumeMounts:
             - name: conf
               mountPath: /etc/squid/squid.conf
+            - name: blacklist-ads
+              mountPath: /etc/squid/blacklist_ads.txt
+            - name: blacklist-sites
+              mountPath: /etc/squid/blacklist_sites.txt  
             - name: logs-data
               mountPath: /var/log/squid
               mountPath: /var/spool/squid
@@ -32,7 +36,15 @@ spec:
         - name: conf
           hostPath:
             path: /home/ubuntu/squid/centos7/conf/squid.conf
-            type: File      
+            type: File
+        - name: blacklist-ads
+          hostPath:
+            path: /home/ubuntu/squid/centos7/conf/blacklist_ads.txt
+            type: File 
+        - name: blacklist-sites
+          hostPath:
+            path: /home/ubuntu/squid/centos7/conf/blacklist_sites.txt
+            type: File          
         - name: logs
           persistentVolumeClaim:
             claimName: local-path-pvc
