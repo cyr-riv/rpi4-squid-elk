@@ -61,9 +61,8 @@ spec:
           persistentVolumeClaim:
             claimName: local-path-pvc
         - name: logstash-conf
-          hostPath:
-            path: /home/ubuntu/elk/centos7/logstash/config/logstash.conf
-            type: File
+          confifMap:
+            name: logstash-conf
         - name: elasticsearch-map
           hostPath:
             path: /home/ubuntu/elk/elasticsearch/squid-access-logstash-template.json
@@ -99,7 +98,7 @@ spec:
       targetPort: 5601
       protocol: TCP
       name: kibana-oss
-  type: LoadBalancer
+  type: NodePort
 ---
 apiVersion: v1
 kind: Service
@@ -115,4 +114,4 @@ spec:
       targetPort: 9200
       protocol: TCP
       name: elasticsearch-oss
-  type: LoadBalancer
+  type: NodePort

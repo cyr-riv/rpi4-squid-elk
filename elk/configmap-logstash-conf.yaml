@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-conf
+  namespace: default
+  labels:
+    app: elk-oss
+data:
+  logstash.conf: |
+    input {
+      tcp {
+            port => 1025
+      }
+    }
+
+    filter {
+      grok {
+        match => {
+            "message" => "%{POSINT:timestamp}.%{WORD:timestamp_ms}\s+%{NUMBER:response_time} %{IPORHOST:src_ip} %{WORD:squid_request_status}/%{NUMBER:http_status_code} %{NUMBER:reply_size_include_header} %{WORD:http_method} %{NOTSPACE:request_url} %{NOTSPACE:user} %{WORD:squid}/%{IP:server_ip} %{NOTSPACE:content_type}"
+          }
+          remove_field => ["message"]
+        }
+      if "_grokparsefailure" in [tags] {
+          grok {
+            match => {
+              "message" => "%{POSINT:timestamp}.%{WORD:timestamp_ms}\s+%{NUMBER:response_time} %{IPORHOST:src_ip} %{WORD:squid_request_status}/%{NUMBER:http_status_code} %{NUMBER:reply_size_include_header} %{WORD:http_method} %{NOTSPACE:request_url} %{NOTSPACE:user} %{WORD:squid}/- %{NOTSPACE:content_type}"
+            }
+            remove_field => ["message"]
+          }
+      }
+      dns {
+        reverse => ["src_ip"]
+        action => "replace"
+      }
+      date {
+      match => [ "timestamp", "UNIX" ]
+      }  
+      geoip {
+        source => "server_ip"
+        }
+    }
+
+    output {
+      elasticsearch {
+          hosts => ["0.0.0.0:9200"]
+          index => "logstash-%{+YYYY.MM.dd}"
+          manage_template => true
+          template => "/usr/share/logstash/squid-access-logstash-template.json"
+          template_name => "logstash"
+      }
+    }

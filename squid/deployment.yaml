@@ -22,10 +22,16 @@ spec:
           volumeMounts:
             - name: conf
               mountPath: /etc/squid/squid.conf
+              subPath: squid.conf
             - name: blacklist-ads
               mountPath: /etc/squid/blacklist_ads.txt
+              subPath: blacklist_ads.txt
             - name: blacklist-sites
-              mountPath: /etc/squid/blacklist_sites.txt  
+              mountPath: /etc/squid/blacklist_sites.txt
+              subPath: blacklist_sites.txt
+            - name: whitelist-kids
+              mountPath: /etc/squid/whitelist_kids.txt
+              subPath: whitelist_kids.txt
             - name: logs-data
               mountPath: /var/log/squid
               mountPath: /var/spool/squid
@@ -34,17 +40,17 @@ spec:
               protocol: TCP
       volumes:
         - name: conf
-          hostPath:
-            path: /home/ubuntu/squid/centos7/conf/squid.conf
-            type: File
+          confifMap:
+            name: squid-conf
         - name: blacklist-ads
-          hostPath:
-            path: /home/ubuntu/squid/centos7/conf/blacklist_ads.txt
-            type: File 
+          confifMap:
+            name: squid-blacklist-ads
         - name: blacklist-sites
-          hostPath:
-            path: /home/ubuntu/squid/centos7/conf/blacklist_sites.txt
-            type: File          
+          confifMap:
+            name: squid-blacklist-sites
+        - name: whitelist-kids
+          confifMap:
+            name: squid-whitelist-kids
         - name: logs
           persistentVolumeClaim:
             claimName: local-path-pvc
@@ -59,7 +65,8 @@ metadata:
   labels:
     name: squid
 spec:
-  type: LoadBalancer
+  type: NodePort
+  externalTrafficPolicy: Local
   ports:
     - port: 3128
       targetPort: 3128

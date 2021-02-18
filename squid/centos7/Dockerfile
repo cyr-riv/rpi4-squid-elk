@@ -10,6 +10,7 @@ ENV SQUID_CACHE_DIR=/var/spool/squid \
 
 RUN yum -y update
 RUN yum -y install squid
+RUN yum -y install bind-utils
 
 #COPY conf/squid.conf /etc/squid
 COPY bin/entrypoint.sh /sbin/entrypoint.sh

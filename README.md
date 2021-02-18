@@ -57,38 +57,8 @@ Follow the steps:
     ```
     **NOTE**: The Elastic index mapping creation may fail the pod startup. To get ride of this, the pod may restart at least once to ensure that ElasticSearch is up and running to accept the CURL command.
 
-3. Finally, the command *kubectl get all,pv,pvc* returns the following status:
-    ```
-    NAME                                    READY   STATUS    RESTARTS   AGE
-    pod/svclb-squid-service-vnhlh           1/1     Running   0          35h
-    pod/svclb-elk-svc-kibana-oss-h5bdm      1/1     Running   0          9h
-    pod/elk-deployment-75597586f4-qdsh5     3/3     Running   2          9h
-    pod/squid-deployment-695cdcd79f-mt6bj   1/1     Running   0          9h
-
-    NAME                         TYPE           CLUSTER-IP      EXTERNAL-IP    PORT(S)          AGE
-    service/kubernetes           ClusterIP      10.43.0.1       <none>         443/TCP          5d14h
-    service/squid-service        LoadBalancer   10.43.156.130   192.168.0.35   3128:32267/TCP   35h
-    service/elk-svc-squid        ClusterIP      10.43.73.63     <none>         1025/TCP         9h
-    service/elk-svc-kibana-oss   LoadBalancer   10.43.255.243   192.168.0.35   5601:31098/TCP   9h
-
-    NAME                                      DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
-    daemonset.apps/svclb-squid-service        1         1         1       1            1           <none>          35h
-    daemonset.apps/svclb-elk-svc-kibana-oss   1         1         1       1            1           <none>          9h
-
-    NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
-    deployment.apps/elk-deployment     1/1     1            1           9h
-    deployment.apps/squid-deployment   1/1     1            1           35h
-
-    NAME                                          DESIRED   CURRENT   READY   AGE
-    replicaset.apps/elk-deployment-75597586f4     1         1         1       9h
-    replicaset.apps/squid-deployment-695cdcd79f   1         1         1       35h
-
-    NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                    STORAGECLASS   REASON   AGE
-    persistentvolume/pvc-71709da5-8fe5-4356-8ea7-7d1579d90a04   1Gi        RWO            Delete           Bound    default/local-path-pvc   local-path              35h
-
-    NAME                                   STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
-    persistentvolumeclaim/local-path-pvc   Bound    pvc-71709da5-8fe5-4356-8ea7-7d1579d90a04   1Gi        RWO            local-path     35h
-    ```
+3. Finally, the command *kubectl get all,pv,pvc,configmaps,ingress* returns all resources status.
+    
 
 #### Additional deployments
 
@@ -127,3 +97,24 @@ Follow the steps:
     sudo systemctl restart k3s
     sudo systemctl status k3s
     ```
+* Upgrade k3s cluster:
+    ```
+    sudo curl -sfL https://get.k3s.io | sh -
+    ```
+* Enable the Traefik Dashboard
+    ```
+    kubectl -n kube-system edit configmap traefik
+    ```
+    By default the dashboard is disabled but you can enable by
+    adding these lines in th traefik.toml configmap.
+    ````
+    [api]
+      dashboard = true
+      insecure = true
+    ````
+    Delete the Traefik pod to ensure it re-read the updated configmap.
+
+* Enable the Kubernetes Dashboard
+    
+    Instructions for enabling it: [**https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/**](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/)
+    

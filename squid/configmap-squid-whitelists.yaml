@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: squid-whitelist-kids
+  namespace: default
+  labels:
+    app: squid
+data:
+  whitelist_kids.txt: |
+    .hugolescargot.com 
+    .logicieleducatif.fr 
+    .youtubekids.com 
+    .ecoledirecte.com 
+    .lesincollables.com

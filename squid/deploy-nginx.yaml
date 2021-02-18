@@ -50,7 +50,5 @@ spec:
       targetPort: 80
       protocol: TCP
       nodePort: 30080
-  externalIPs: 
-    - 192.168.0.35
   selector:
     app: nginx-proxy

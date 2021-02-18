@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: squid-blacklist-ads
+  namespace: default
+  labels:
+    app: squid
+data:
+  blacklist_ads.txt: |
+    .adnxs.com
+    .helpshift.com
+    .adservice.google.com
+    .adservice.google.fr
+    .g.doubleclick.net
+    .amazon-adsystem.com
+    .googleadservices.com
+    .adtelligent.com
+    .ads.linkedin.com
+    .smartadserver.com
+    .stickyadstv.com
+    .ads-twitter.com
+    .mng-ads.com
+    .kameleoon.com
+    .adtelligent.com
+    .vertamedia.com
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: squid-blacklist-sites
+  namespace: default
+  labels:
+    name: squid
+data:
+  blacklist_sites.txt: |
+    .yandex.ru
+    .creativecdn.com
+    .go.republicains.fr

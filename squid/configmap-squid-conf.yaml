@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: squid-conf
+  namespace: default
+  labels:
+    app: squid
+data:
+  squid.conf: |
+    # squid.conf
+    acl localnet src 10.0.0.0/8     # RFC1918 possible internal network
+    acl localnet src 172.16.0.0/12  # RFC1918 possible internal network
+    acl localnet src 192.168.0.0/16 # RFC1918 possible internal network
+    acl localnet src fc00::/7       # RFC 4193 local private network range
+    acl localnet src fe80::/10      # RFC 4291 link-local (directly plugged) machines
+
+    acl SSL_ports port 443
+
+    acl Safe_ports port 80          # http
+    acl Safe_ports port 21          # ftp
+    acl Safe_ports port 443         # https
+    acl Safe_ports port 70          # gopher
+    acl Safe_ports port 210         # wais
+    acl Safe_ports port 280         # http-mgmt
+    acl Safe_ports port 488         # gss-http
+    acl Safe_ports port 591         # filemaker
+    acl Safe_ports port 777         # multiling http
+    acl Safe_ports port 1025-65535  # unregistered ports
+    #---START CUSTOMIZATION---
+    acl dst_porn dstdomain .youporn.com .xvideos.com .pornhub.com .xhamster.com .xnxx.com
+    acl dst_ads dstdomain "/etc/squid/blacklist_ads.txt"
+    acl dst_blacklist dstdomain "/etc/squid/blacklist_sites.txt"
+    acl dst_kids dstdomain "/etc/squid/whitelist_kids.txt"
+    acl ip_kids src 192.168.0.18
+    acl url_kids url_regex ^http.*colori.*$
+    #---END CUSTOMIZATION---
+    acl CONNECT method CONNECT
+
+    http_access deny !Safe_ports
+    http_access deny CONNECT !SSL_ports
+    http_access allow localhost manager
+    http_access deny manager
+    #---START CUSTOMIZATION---
+    http_access deny dst_porn
+    http_access deny dst_ads
+    http_access deny dst_blacklist
+    http_access allow ip_kids dst_kids
+    http_access deny ip_kids
+    #---END CUSTOMIZATION---
+
+    #
+    # INSERT YOUR OWN RULE(S) HERE TO ALLOW ACCESS FROM YOUR CLIENTS
+    #
+
+    http_access allow localnet
+    http_access allow localhost
+    http_access deny all
+
+    coredump_dir /var/spool/squid
+
+    refresh_pattern ^ftp:           1440    20%     10080
+    refresh_pattern ^gopher:        1440    0%      1440
+    refresh_pattern -i (/cgi-bin/|\?) 0     0%      0
+    refresh_pattern .               0       20%     4320
+
+    #---START CUSTOMIZATION---
+    cache_mgr cyrille.riviere.pro@gmail.com
+    http_port 3128
+    access_log stdio:/var/log/squid/access.log squid
+    access_log tcp://elk-svc-squid.cyri.intra:1025
+    #---END CUSTOMIZATION---
+
+    #---START ADD X-Forwarded-For header in access.log---
+    #http_port 3128 require-proxy-header
+    #proxy_protocol_access allow localnet
+    #follow_x_forwarded_for allow localhost
+    #follow_x_forwarded_for allow localnet
+    #acl_uses_indirect_client on
+    #delay_pool_uses_indirect_client on
+    #log_uses_indirect_client on
+    #tproxy_uses_indirect_client off
+    #---END ADD X-Forwarded-For header in access.log---
