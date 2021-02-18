@@ -38,8 +38,8 @@ Follow the steps:
         The command returns the list of node, here only the master node:
          ``` 
         ubuntu@cyri-pi4:~$ sudo kubectl get nodes
-        NAME       STATUS   ROLES    AGE   VERSION
-        cyri-pi4   Ready    master   65s   v1.17.3+k3s1
+        NAME       STATUS   ROLES                  AGE    VERSION
+        cyri-pi4   Ready    control-plane,master   341d   v1.20.0+k3s2
          ``` 
 
 #### Quickstart
