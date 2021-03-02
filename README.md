@@ -58,6 +58,7 @@ Follow the steps:
     **NOTE**: The Elastic index mapping creation may fail the pod startup. To get ride of this, the pod may restart at least once to ensure that ElasticSearch is up and running to accept the CURL command.
 
 3. Finally, the command *kubectl get all,pv,pvc,configmaps,ingress* returns all resources status.
+    ![Kubernetes Diagram](./kubernetes_diagram.png)
     
 
 #### Additional deployments
