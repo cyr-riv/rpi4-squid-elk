@@ -33,6 +33,5 @@ metadata:
     name: squid
 data:
   blacklist_sites.txt: |
-    .yandex.ru
     .creativecdn.com
     .go.republicains.fr

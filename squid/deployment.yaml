@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: squid
-          image: docker.io/cyrriv/squid:3.5.20
+          image: docker.io/cyrriv/squid:4.10
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: conf
@@ -40,16 +40,16 @@ spec:
               protocol: TCP
       volumes:
         - name: conf
-          confifMap:
+          configMap:
             name: squid-conf
         - name: blacklist-ads
-          confifMap:
+          configMap:
             name: squid-blacklist-ads
         - name: blacklist-sites
-          confifMap:
+          configMap:
             name: squid-blacklist-sites
         - name: whitelist-kids
-          confifMap:
+          configMap:
             name: squid-whitelist-kids
         - name: logs
           persistentVolumeClaim:

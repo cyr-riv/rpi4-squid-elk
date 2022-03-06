@@ -1,4 +1,4 @@
-FROM centos:7
+FROM ubuntu:latest
 LABEL maintainer="cyrille.riviere.pro@gmail.com"
 
 RUN groupadd squid \
@@ -6,11 +6,12 @@ RUN groupadd squid \
 
 ENV SQUID_CACHE_DIR=/var/spool/squid \
     SQUID_LOG_DIR=/var/log/squid \
-    SQUID_USER=squid
+    SQUID_USER=squid \
+    DEBIAN_FRONTEND=noninteractive
 
-RUN yum -y update
-RUN yum -y install squid
-RUN yum -y install bind-utils
+RUN apt-get -y update
+RUN apt-get -y install squid
+RUN apt-get -y install bind9-utils
 
 #COPY conf/squid.conf /etc/squid
 COPY bin/entrypoint.sh /sbin/entrypoint.sh

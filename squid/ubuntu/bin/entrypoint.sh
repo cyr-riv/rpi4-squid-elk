@@ -2,14 +2,14 @@
 set -e
 
 create_log_dir() {
-  mkdir -p ${SQUID_LOG_DIR}
-  chmod -R 755 ${SQUID_LOG_DIR}
-  chown -R ${SQUID_USER}:${SQUID_USER} ${SQUID_LOG_DIR}
+  sudo mkdir -p ${SQUID_LOG_DIR}
+  sudo chmod -R 755 ${SQUID_LOG_DIR}
+  sudo chown -R ${SQUID_USER}:${SQUID_USER} ${SQUID_LOG_DIR}
 }
 
 create_cache_dir() {
-  mkdir -p ${SQUID_CACHE_DIR}
-  chown -R ${SQUID_USER}:${SQUID_USER} ${SQUID_CACHE_DIR}
+  sudo mkdir -p ${SQUID_CACHE_DIR}
+  sudo chown -R ${SQUID_USER}:${SQUID_USER} ${SQUID_CACHE_DIR}
 }
 
 create_log_dir
@@ -28,10 +28,10 @@ fi
 if [[ -z ${1} ]]; then
   if [[ ! -d ${SQUID_CACHE_DIR}/00 ]]; then
     echo "Initializing cache..."
-    squid -N -f /etc/squid/squid.conf -z
+    sudo squid -N -f /etc/squid/squid.conf -z
   fi
   echo "Starting squid..."
-  exec squid -f /etc/squid/squid.conf -NYCd 1 ${EXTRA_ARGS}
+  exec sudo squid -f /etc/squid/squid.conf -NYCd 1 ${EXTRA_ARGS}
 else
   exec "$@"
 fi

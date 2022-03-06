@@ -31,8 +31,6 @@ data:
     acl dst_ads dstdomain "/etc/squid/blacklist_ads.txt"
     acl dst_blacklist dstdomain "/etc/squid/blacklist_sites.txt"
     acl dst_kids dstdomain "/etc/squid/whitelist_kids.txt"
-    acl ip_kids src 192.168.0.18
-    acl url_kids url_regex ^http.*colori.*$
     #---END CUSTOMIZATION---
     acl CONNECT method CONNECT
 
@@ -44,8 +42,7 @@ data:
     http_access deny dst_porn
     http_access deny dst_ads
     http_access deny dst_blacklist
-    http_access allow ip_kids dst_kids
-    http_access deny ip_kids
+    http_access allow dst_kids
     #---END CUSTOMIZATION---
 
     #
@@ -67,16 +64,6 @@ data:
     cache_mgr cyrille.riviere.pro@gmail.com
     http_port 3128
     access_log stdio:/var/log/squid/access.log squid
-    access_log tcp://elk-svc-squid.cyri.intra:1025
+    access_log tcp://logstash-svc-squid.default.svc.cluster.local:1025 squid
+    cache_effective_user squid
     #---END CUSTOMIZATION---
-
-    #---START ADD X-Forwarded-For header in access.log---
-    #http_port 3128 require-proxy-header
-    #proxy_protocol_access allow localnet
-    #follow_x_forwarded_for allow localhost
-    #follow_x_forwarded_for allow localnet
-    #acl_uses_indirect_client on
-    #delay_pool_uses_indirect_client on
-    #log_uses_indirect_client on
-    #tproxy_uses_indirect_client off
-    #---END ADD X-Forwarded-For header in access.log---
