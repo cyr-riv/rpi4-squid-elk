@@ -19,14 +19,14 @@ data:
           fallthrough
         }
         prometheus :9153
-        forward . 192.168.0.29
+        forward . 192.168.1.14
         cache 30
         loop
         reload
         loadbalance
     }
   NodeHosts: |
-    192.168.0.35 cyri-pi4
+    192.168.1.13 cyri-pi4
 kind: ConfigMap
 metadata:
   name: coredns

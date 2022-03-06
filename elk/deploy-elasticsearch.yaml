@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch-deployment
+  namespace: default
+  labels:
+    name: elasticsearch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      containers:
+        - name: elasticsearch
+          image: docker.io/cyrriv/elasticsearch-oss:7.5.1
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: elasticsearch-vol01
+              mountPath: /usr/share/elasticsearch/data
+          workingDir: /usr/share/elasticsearch/data
+          ports:
+            - containerPort: 9200
+              protocol: TCP
+            - containerPort: 9300
+              protocol: TCP 
+      volumes:
+        - name: elasticsearch-vol01
+          persistentVolumeClaim:
+            claimName: local-path-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-svc
+  labels:
+    name: elasticsearch
+spec:
+  selector:
+    app: elasticsearch
+  ports:
+    - port: 9200
+      targetPort: 9200
+      protocol: TCP
+      name: elasticsearch
+  type: NodePort

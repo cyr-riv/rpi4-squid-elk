@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash-deployment
+  namespace: default
+  labels:
+    name: logstash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      containers:
+        - name: logstash
+          image: docker.io/cyrriv/logstash-oss:7.5.1
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: logstash-conf
+              mountPath: /usr/share/logstash/config/logstash.conf
+            - name: elasticsearch-map
+              mountPath: /usr/share/logstash/squid-access-logstash-template.json
+          ports:
+            - containerPort: 1025
+              protocol: TCP
+          lifecycle:
+            ### Configure the index mapping after starting logstash.
+            ### The index pattern is created in ElasticSeacrh but
+            ### may reuquire a pod restart at least once to be effective,
+            ### to ensure that ElacticSearch is up and running.
+            postStart:
+              exec:
+                command: ["sleep 5"]
+                command: ["sh", "-c", "curl -XPUT http://elasticsearch-svc.default.svc.cluster.local:9200/_template/squid-access \
+                -H 'Content-Type: application/json' \
+                -d '@/usr/share/logstash/squid-access-logstash-template.json'"]
+      volumes:
+        - name: logstash-conf
+          configMap:
+            name: logstash-conf
+        - name: elasticsearch-map
+          hostPath:
+            path: /home/ubuntu/elk/elasticsearch/squid-access-logstash-template.json
+            type: File
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash-svc-squid
+  labels:
+    name: logstash
+spec:
+  selector:
+    app: logstash
+  ports:
+    - port: 1025
+      targetPort: 1025
+      protocol: TCP
+      name: squid
+  type: ClusterIP

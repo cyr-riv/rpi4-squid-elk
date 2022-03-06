@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kibana-conf
+  namespace: default
+  labels:
+    app: kibana
+data:
+  kibana.yml: |
+    # Default Kibana configuration for docker target
+    server.name: kibana
+    server.host: "0"
+    elasticsearch.hosts: [ "http://elasticsearch-svc.default.svc.cluster.local:9200" ]

@@ -14,7 +14,7 @@ The project contains 2 folders:
 ### Running the project
 
 #### Prerequisites
-- Ensure that your Raspberry Pi 4 (RPI4) runs with 64 bits OS such as Ubuntu Server [**https://ubuntu.com/download/raspberry-pi**](https://ubuntu.com/download/raspberry-pi). For my setup, I selected the LTS release: ***Ubuntu 18.04.4 LTS***.
+- Ensure that your Raspberry Pi 4 (RPI4) runs with 64 bits OS such as Ubuntu Server [**https://ubuntu.com/download/raspberry-pi**](https://ubuntu.com/download/raspberry-pi). For my setup, I selected the LTS release: ***Ubuntu 20.04.3 LTS***.
 - Read the matrix compliancy: [**https://www.elastic.co/fr/support/matrix**](https://www.elastic.co/fr/support/matrix)
 - Verify the k3s requirements: [**https://rancher.com/docs/k3s/latest/en/installation/installation-requirements/**](https://rancher.com/docs/k3s/latest/en/installation/installation-requirements/)
 
