@@ -17,11 +17,18 @@ spec:
     spec:
       containers:
         - name: logstash
-          image: docker.io/cyrriv/logstash-oss:7.5.1
+          image: docker.elastic.co/logstash/logstash-oss:7.17.1-arm64
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: logstash-conf
-              mountPath: /usr/share/logstash/config/logstash.conf
+              mountPath: /usr/share/logstash/config/logstash.yml
+              subPath: logstash.yml
+            - name: logstash-pipeline
+              mountPath: /usr/share/logstash/pipeline/logstash.conf
+              subPath: logstash.conf
+            - name: logstash-jvm
+              mountPath: /usr/share/logstash/config/jvm.options
+              subPath: jvm.options
             - name: elasticsearch-map
               mountPath: /usr/share/logstash/squid-access-logstash-template.json
           ports:
@@ -42,6 +49,12 @@ spec:
         - name: logstash-conf
           configMap:
             name: logstash-conf
+        - name: logstash-pipeline
+          configMap:
+            name: logstash-pipeline
+        - name: logstash-jvm
+          configMap:
+            name: logstash-jvm
         - name: elasticsearch-map
           hostPath:
             path: /home/ubuntu/elk/elasticsearch/squid-access-logstash-template.json

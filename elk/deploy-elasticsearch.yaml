@@ -17,18 +17,34 @@ spec:
     spec:
       containers:
         - name: elasticsearch
-          image: docker.io/cyrriv/elasticsearch-oss:7.5.1
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1-arm64
           imagePullPolicy: IfNotPresent
+          env:
+            - name: ELASTIC_PASSWORD
+              value: "elasticPass"
+            - name: KEYSTORE_PASSWORD
+              value: "keystorePass"
           volumeMounts:
+            - name: elasticsearch-conf
+              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              subPath: elasticsearch.yml
+            - name: elasticsearch-jvm
+              mountPath: /usr/share/elasticsearch/config/jvm.options
+              subPath: jvm.options
             - name: elasticsearch-vol01
               mountPath: /usr/share/elasticsearch/data
-          workingDir: /usr/share/elasticsearch/data
           ports:
             - containerPort: 9200
               protocol: TCP
             - containerPort: 9300
-              protocol: TCP 
+              protocol: TCP
       volumes:
+        - name: elasticsearch-conf
+          configMap:
+            name: elasticsearch-conf
+        - name: elasticsearch-jvm
+          configMap:
+            name: elasticsearch-jvm
         - name: elasticsearch-vol01
           persistentVolumeClaim:
             claimName: local-path-pvc

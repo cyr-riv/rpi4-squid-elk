@@ -1,5 +1,6 @@
 # Design with https://diagrams.mingrammer.com/
 # kubernetes-diagram.py
+# run the cmd: python3 cyri-lan-archi-diagram.py to generate the png file.
 from diagrams import Cluster, Diagram
 from diagrams.generic.network import Switch, Router
 from diagrams.generic.storage import Storage
@@ -19,9 +20,9 @@ with Diagram("Kubernetes Diagram", show=False):
         pvc = PVC("pv claim")
         with Cluster("apps"):
             logstash = Logstash("logstash-oss")
-            elasticsearch = Elasticsearch("elasticsearch-oss")
+            elasticsearch = Elasticsearch("elasticsearch")
             squid = Server("squid")
-            elk = [logstash - elasticsearch - Kibana("kibana-oss")]
+            elk = [elasticsearch - logstash - Kibana("kibana")]
         with Cluster("local-storage"):
             pv = [StorageClass("storage class") >> PV("persistent volume")]
         k8s = ingress >> svc

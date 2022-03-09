@@ -6,6 +6,17 @@ metadata:
   labels:
     app: logstash
 data:
+  logstash.yml: |
+    http.host: "0.0.0.0"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-pipeline
+  namespace: default
+  labels:
+    app: logstash
+data:
   logstash.conf: |
     input {
       tcp {
@@ -49,3 +60,15 @@ data:
           template_name => "logstash"
       }
     }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-jvm
+  namespace: default
+  labels:
+    app: logstash
+data:
+  jvm.options: |
+    -Xms512m
+    -Xmx512m

@@ -2,14 +2,23 @@
 
 The goal of the project is to setup a proxy appliance for monitoring the internal home web activities.
 
-The purpose is to install a light Kubernetes (k3s) cluster on [**Raspberry Pi 4**](https://www.raspberrypi.org) (armv8) and then to deploy Squid and the open source ELK stack: ElasticSearch OSS, Logstash OSS and Kibana OSS. 
+The purpose is to install a light Kubernetes (k3s) cluster on [**Raspberry Pi 4**](https://www.raspberrypi.org) (armv8) and then to deploy Squid and the open source ELK stack: ElasticSearch, Logstash and Kibana. 
+
+### Updates
+
+| Date | Description |
+| --- | --- |
+| March 2020 | project launch |
+| February 2021 | add configmaps and ingress |
+| March 2022 | update of Squid image to 4.10, split ELK stack to 3 pods, update of ELK stack images from Elastic registry (incl. [CVE-2021-44228](https://cve.mitre.org/cgi-bin/cvename.cgi?name=2021-44228)) |
+
 
 ### Installing and configuring the setup
 
 The project contains 2 folders:
 
-* folder ***squid*** contains the *Dockerfile* to build the ARM64 (aarch64)  Squid image based on CentOS7. Also the full YAML files for deploying the application based on the Squid config file and the related exposed service.
-* folder ***elk*** contains the YAML for creating the deployment with ElasticSearch, Logstach and Kibana. Also, the related config files for ELK such as the *grok* instructions to parse the Squid logs. Finally, the folder contains the *Dockerfiles* to build the ARM64 (aarch64) ELK images based on CentOS7.
+* folder ***squid*** contains the *Dockerfile* to build the ARM64 (aarch64)  Squid image based on Ubuntu. Also the full YAML files for deploying the application based on the Squid config file and the related exposed service, configmaps.
+* folder ***elk*** contains the YAML for creating the deployment with ElasticSearch, Logstach and Kibana. Also, the related config files for ELK such as the *grok* instructions to parse the Squid logs. Finally, the images used for the ELK stack are the ones provided by [Elastic](https://www.docker.elastic.co/).
 
 ### Running the project
 
@@ -23,7 +32,7 @@ The project contains 2 folders:
 Follow the steps:
 
 1. Install RPI4 as described on the [**Ubuntu**](https://ubuntu.com/download/raspberry-pi/thank-you) documentation for Raspberry Pi.
-2. Install Docker to build the [Squid image](squid/centos7/README.md) and [ELK images](elk/centos7/README.md) for ARM64 or pull the images from [**my Docker hub repositories**](https://hub.docker.com/r/cyrriv/)
+2. Install Docker to build the [Squid image](squid/centos7/README.md) for ARM64 or pull the image from [**my Docker hub repositories**](https://hub.docker.com/r/cyrriv/)
     * Instructions to install docker-ce: [**docker-ce**](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 3. Install **k3s** with the shell script: 
     [**https://rancher.com/docs/k3s/latest/en/installation/install-options/**](https://rancher.com/docs/k3s/latest/en/installation/install-options/)
@@ -48,22 +57,24 @@ Follow the steps:
 
 1. To deploy Squid, launch the *kubectl* commands:
     ```
-    sudo kubectl create -f ./squid/pvc.yaml         #Create the Persitent Volume
-    sudo kubectl create -f ./squid/deployment.yaml  #Deploy Squid (app and service)
+    sudo kubectl create -f ./squid/pvc.yaml             # Create the Persitent Volume
+    sudo kubectl create -f ./squid/configmap-squid-*    # Create all ConfigMaps
+    sudo kubectl create -f ./squid/deployment.yaml      # Deploy Squid (app and service)
     ```
-2. To deploy ELK OSS, launch the *kubectl* commands:
+2. To deploy ELK, launch the *kubectl* commands in this order:
     ```
-    sudo kubectl apply -f ./elk/deployment.yaml        #Deploy and expose ELK
+    sudo kubectl create -f ./elk/configmap-elasticsearch-conf.yaml  # Create ConfigMaps for ElasticSearch
+    sudo kubectl create -f ./elk/deploy-elasticsearch.yaml          # Deploy and expose ElasticSearch
+    sudo kubectl create -f ./elk/configmap-logstash-conf.yaml       # Create ConfigMaps for Logstash
+    sudo kubectl create -f ./elk/deploy-logstash.yaml               # Deploy and expose Logstash
+    sudo kubectl create -f ./elk/configmap-kibana-conf.yaml         # Create ConfigMaps for Kibana
+    sudo kubectl create -f ./elk/deploy-kibana.yaml                 # Deploy and expose Kibana
     ```
     **NOTE**: The Elastic index mapping creation may fail the pod startup. To get ride of this, the pod may restart at least once to ensure that ElasticSearch is up and running to accept the CURL command.
 
 3. Finally, the command *kubectl get all,pv,pvc,configmaps,ingress* returns all resources status.
     ![Kubernetes Diagram](./kubernetes_diagram.png)
     
-
-#### Additional deployments
-
-* To ease the configuration the web proxy on all home devices, I deployed a Nginx web server with the *proxy.pac* file detailing how the web traffic is routed to the proxy or not. Files are located into the *squid/nginx-proxy* folder with the YAML file named *squid/deploy-nginx.yaml* for the K8s deployment and service.
 
 ## Issues encountered and problems solving
 
@@ -75,6 +86,22 @@ Follow the steps:
         ```
         sudo cat /proc/cmdline.
         ```
+* ElasticSearch *config* folder is read-only when using configMap
+    ````
+    Exception in thread "main" java.nio.file.FileSystemException: /usr/share/elasticsearch/config/elasticsearch.keystore.tmp: Read-only file system
+    ````
+    - Solution: use *subPath* when defining the *volumeMounts* as explained in this [Stackoverflow QA](https://stackoverflow.com/questions/57373670/elasticsearch-yml-is-read-only-when-loaded-using-kubernetes-configmap)
+    ````yaml
+    ....
+    volumeMounts:
+        - name: elasticsearch-conf
+            mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+            subPath: elasticsearch.yml
+        - name: elasticsearch-jvm
+            mountPath: /usr/share/elasticsearch/config/jvm.options
+            subPath: jvm.options
+    ....
+    ````
 
 
 ## Tips and tricks

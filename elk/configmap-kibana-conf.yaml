@@ -8,6 +8,7 @@ metadata:
 data:
   kibana.yml: |
     # Default Kibana configuration for docker target
-    server.name: kibana
-    server.host: "0"
+    server.name: "kibana"
+    server.host: "0.0.0.0"
     elasticsearch.hosts: [ "http://elasticsearch-svc.default.svc.cluster.local:9200" ]
+    monitoring.ui.container.elasticsearch.enabled: true

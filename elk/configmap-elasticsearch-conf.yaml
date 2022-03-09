@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-conf
+  namespace: default
+  labels:
+    app: elasticsearch
+data:
+  elasticsearch.yml: |
+    cluster.name: "docker-cluster"
+    network.host: 0.0.0.0
+    discovery.type: single-node
+    xpack.security.enabled: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-jvm
+  namespace: default
+  labels:
+    app: elasticsearch
+data:
+  jvm.options: |
+    -Xms512m
+    -Xmx1g
+
+
